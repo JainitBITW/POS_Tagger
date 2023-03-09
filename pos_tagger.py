@@ -15,11 +15,12 @@ class POS_Dataset(Dataset):
     def __init__(self ,words , tags , word2idx ):
         '''
         This function initializes the dataset
+        words contains the list of sentences in word form
         args : data_dir , word2idx , tag2idx
+        
         '''
-        print(len(words), len(tags))
-        self.words = torch.tensor(words)
-        self.tags = torch.tensor(tags)
+        self.words = words.clone().detach()
+        self.tags = tags.clone().detach()
         self.word2idx = word2idx
 
     def __len__(self):
@@ -69,8 +70,6 @@ def create_datasets(file_path , word2idx , tag2idx , train=False):
     dataset = [[] , []]
     if train: 
         raw_data = read_file(file_path)
-        words = []
-        tags = []
         for sentence in raw_data:
             sentence_words = []
             sentence_tags = []
@@ -264,21 +263,15 @@ if __name__ == '__main__':
         else:
             input_new.append(word2idx['<UNK>'])
     input_new = torch.tensor(input_new)
-    print(input_new)
     input_new= input_new.reshape(1,-1)
-    print(input_new)
     tags_scores = model(input_new)
-    print(tags_scores)
     ps = torch.exp(tags_scores)
     top_p , top_class = ps.topk(1 , dim=1)
-    print(top_class.shape)
     top_class = top_class[0][0]
     top_class= top_class.tolist()
-    print(type(top_class))
     idxtag = {v:k for k,v in tag2idx.items()}
-    print(idxtag)
     for i in range(len(input)):
-        print(f'{input[i]} : {idxtag[top_class[i]]}')
+        print(f'{input[i]} \t {idxtag[top_class[i]]}')
     #testing model
     print('Testing model')
     test_model(model , test_loader , device)
