@@ -124,21 +124,24 @@ def dataset_loader(dataset , batch_size, word2idx):
 
 
 class POS_tagger(nn.Module):
-    def __init__(self, embedding_dim , hidden_dim , vocab_size , tagset_size ):
+    def __init__(self, embedding_dim, hidden_dim, vocab_size, tagset_size):
         super(POS_tagger, self).__init__()
         self.hidden_dim = hidden_dim
         self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
         self.lstm = nn.LSTM(embedding_dim, hidden_dim)
-        self.hidden2tag = nn.Linear(hidden_dim,tagset_size)
+        self.hidden2tag = nn.Linear(hidden_dim, tagset_size)
        
-    def forward(self, sentences):
-    # sentences shape: (batch_size, sentence_length)
-        embeds = self.word_embeddings(sentences)
-        lstm_out, _ = self.lstm(embeds.transpose(0, 1))  # lstm expects shape (seq_len, batch_size, input_size)
-        tag_space = self.hidden2tag(lstm_out.view(len(sentences), -1))
-        tag_scores = F.log_softmax(tag_space, dim=1)
-        return tag_scores
-        
+    def forward(self, batch):
+        embeds = self.word_embeddings(batch)
+        lstm_out, _ = self.lstm(embeds.permute(1, 0, 2))
+        # print(lstm_out.shape)
+        # print('lstm_out')
+        # print(lstm_out[-1].shape)
+        tag_space = self.hidden2tag(lstm_out)
+        tag_scores = F.log_softmax(tag_space, dim=2)
+        # print(tag_scores.shape)
+        return tag_scores.permute(1, 2, 0)
+
 
 def make_model(embedding_dim , hidden_dim , word2idx , tag2idx ):
     model = POS_tagger(embedding_dim , hidden_dim , len(word2idx) , len(tag2idx))
@@ -158,12 +161,16 @@ def train_model(model , train_loader , dev_loader, optimizer , criterion , epoch
     best_accuracy = 0
     for epoch in range(epochs):
         for words , tags in train_loader:
-            print(words.shape , tags.shape)
+            # print(words.shape , tags.shape)
             steps += 1
             words = words.to(device)
             tags = tags.to(device)
             optimizer.zero_grad()
+            
             output = model(words)
+
+            # print(output.shape, tags.shape)
+            # print('output')
             loss = criterion(output , tags)
             loss.backward()
             optimizer.step()
@@ -215,7 +222,7 @@ def collate_jugaad(dataset):
     returns : padded sentences , tags
     '''
     max_len = max(len(sentence) for sentence in dataset[0])
-    print(max_len)
+    # print(max_len)
     sentences = dataset[0]
     tags = dataset[1]
     for i in range(len(sentences)):
@@ -241,10 +248,18 @@ if __name__ == '__main__':
     train_loader = dataset_loader(train_data , batch_size, word2idx)
     dev_loader = dataset_loader(dev_data , batch_size,word2idx)
     test_loader = dataset_loader(test_data , batch_size,word2idx)
-    #creating model
-    # next(iter(train_loader) )
+ 
+ 
     model = make_model(embedding_dim , hidden_dim , word2idx , tag2idx)
-    input = 'mary had a little lamb '
+   
+    model = model.to(device)
+    #creating optimizer and criterion
+    optimizer = optim.Adam(model.parameters() , lr=learning_rate)
+    criterion = nn.NLLLoss()
+    #training model
+    model = train_model(model , train_loader , dev_loader , optimizer , criterion , epochs , device , 'model.pt')
+
+    input = 'i am a boy i love cookies'
     input = input.split()
     input_new = []
     for word in input:
@@ -254,19 +269,20 @@ if __name__ == '__main__':
             input_new.append(word2idx['<UNK>'])
     input_new = torch.tensor(input_new)
     print(input_new)
+    input_new= input_new.reshape(1,-1)
+    print(input_new)
     tags_scores = model(input_new)
     print(tags_scores)
     ps = torch.exp(tags_scores)
     top_p , top_class = ps.topk(1 , dim=1)
+    print(top_class.shape)
+    top_class = top_class[0][0]
+    top_class= top_class.tolist()
+    print(type(top_class))
     idxtag = {v:k for k,v in tag2idx.items()}
+    print(idxtag)
     for i in range(len(input)):
-        print(f'{input[i]} : {idxtag[top_class[i].item()]}')
-    model = model.to(device)
-    #creating optimizer and criterion
-    optimizer = optim.Adam(model.parameters() , lr=learning_rate)
-    criterion = nn.NLLLoss()
-    #training model
-    model = train_model(model , train_loader , dev_loader , optimizer , criterion , epochs , device , 'model.pt')
+        print(f'{input[i]} : {idxtag[top_class[i]]}')
     #testing model
     print('Testing model')
     test_model(model , test_loader , device)
