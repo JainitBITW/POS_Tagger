@@ -30,9 +30,9 @@ class POS_tagger(nn.Module):
         self.hidden_dim = hidden_dim
         self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
         self.embedding_dim = embedding_dim
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim)
-        self.hidden2tag = nn.Linear(hidden_dim, tagset_size)
-       
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers=2, bidirectional=True)
+        self.hidden2tag = nn.Linear(hidden_dim*2, tagset_size)  # output size doubled due to bidirectional LSTM
+
     def forward(self, batch):
         embeds = self.word_embeddings(batch)
         lstm_out, _ = self.lstm(embeds.permute(1, 0, 2))

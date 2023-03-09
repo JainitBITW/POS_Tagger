@@ -9,8 +9,8 @@ from torch import optim
 TRAIN_FILE = 'en_atis-ud-train.conllu'
 DEV_FILE = 'en_atis-ud-dev.conllu'
 TEST_FILE = 'en_atis-ud-test.conllu'
-EMBEDDING_DIM = 128 
-HIDDEN_DIM = 128 
+EMBEDDING_DIM = 100 
+HIDDEN_DIM = 100 
 EPOCHS = 10
 BATCH_SIZE = 32 
 LEARNING_RATE = 0.001
