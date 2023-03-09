@@ -29,6 +29,7 @@ class POS_tagger(nn.Module):
         super(POS_tagger, self).__init__()
         self.hidden_dim = hidden_dim
         self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
+        self.embedding_dim = embedding_dim
         self.lstm = nn.LSTM(embedding_dim, hidden_dim)
         self.hidden2tag = nn.Linear(hidden_dim, tagset_size)
        
@@ -45,25 +46,6 @@ def make_model(embedding_dim , hidden_dim , word2idx , tag2idx ):
     return model
 
 
-
-class POS_tagger(nn.Module):
-    def __init__(self, embedding_dim, hidden_dim, vocab_size, tagset_size):
-        super(POS_tagger, self).__init__()
-        self.hidden_dim = hidden_dim
-        self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim)
-        self.hidden2tag = nn.Linear(hidden_dim, tagset_size)
-       
-    def forward(self, batch):
-        embeds = self.word_embeddings(batch)
-        lstm_out, _ = self.lstm(embeds.permute(1, 0, 2))
-        # print(lstm_out.shape)
-        # print('lstm_out')
-        # print(lstm_out[-1].shape)
-        tag_space = self.hidden2tag(lstm_out)
-        tag_scores = F.log_softmax(tag_space, dim=2)
-        # print(tag_scores.shape)
-        return tag_scores.permute(1, 2, 0)
 
 
 def make_model(embedding_dim , hidden_dim , word2idx , tag2idx ):
@@ -78,6 +60,8 @@ def train_model(model , train_loader , dev_loader, optimizer , criterion , epoch
     returns : trained model
     '''
     model.train()
+    print(model.hidden_dim)
+    print(model.embedding_dim)
     steps = 0
     running_loss = 0
     print_every = 100
@@ -110,7 +94,9 @@ def train_model(model , train_loader , dev_loader, optimizer , criterion , epoch
                        'word2idx' : word2idx,
                           'tag2idx' : tag2idx,
                             'model_state_dict' : model.state_dict(),
-                            'optimizer_state_dict' : optimizer.state_dict()
+                            'optimizer_state_dict' : optimizer.state_dict(),
+                            'hidden_dim' : model.hidden_dim,
+                            'embedding_dim' : model.embedding_dim,
     
                     }, path)
                 print(f"Epoch {epoch+1}/{epochs}.. "

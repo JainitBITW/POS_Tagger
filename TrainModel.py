@@ -20,9 +20,9 @@ TAG2IDX = {'<PAD>':0}
 
 CRITERION = nn.NLLLoss()
 Loaders={}
-Loaders['train'] = dm.Get_Dataloader(file_path= TRAIN_FILE , word2idx=WORD2IDX , tag2idx=TAG2IDX , batch_size=BATCH_SIZE , train=True)
-Loaders['dev'] = dm.Get_Dataloader(file_path= DEV_FILE , word2idx=WORD2IDX , tag2idx=TAG2IDX , batch_size=BATCH_SIZE)
-Loaders['test'] = dm.Get_Dataloader(file_path= TEST_FILE , word2idx=WORD2IDX , tag2idx=TAG2IDX , batch_size=BATCH_SIZE)
+Loaders['train'] = dm.Get_Dataloader(file_path= TRAIN_FILE , word2idx=WORD2IDX , tag2idx=TAG2IDX , batch_size=BATCH_SIZE , train=True, jugaad=True)
+Loaders['dev'] = dm.Get_Dataloader(file_path= DEV_FILE , word2idx=WORD2IDX , tag2idx=TAG2IDX , batch_size=BATCH_SIZE , jugaad=True)
+Loaders['test'] = dm.Get_Dataloader(file_path= TEST_FILE , word2idx=WORD2IDX , tag2idx=TAG2IDX , batch_size=BATCH_SIZE, jugaad = False)
 
 model = mt.make_model(embedding_dim=EMBEDDING_DIM , hidden_dim=HIDDEN_DIM , word2idx=WORD2IDX , tag2idx=TAG2IDX)
 OPTIMIZER = optim.Adam(model.parameters() , lr=LEARNING_RATE)

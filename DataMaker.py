@@ -9,6 +9,7 @@ import torch
 from conllu import parse
 
 from torch.utils.data import Dataset, DataLoader
+import random 
 
 
 # class to create the dataset
@@ -54,9 +55,9 @@ def read_file(file_name):
     raw_data = parse(open(file_name).read())
     return raw_data
 
-def create_datasets(file_path , word2idx , tag2idx , train=False):
+def create_datasets(file_path , word2idx , tag2idx , train=False , jugaad=True):
     '''
-    This function creates the dataset from the raw data
+    This function creates the dataset from the raw data jugaad is basically a flag to apply unknown learning to the dataset
     args : raw_data
     returns : dataset where each element is a tuple of (sentence , tags)
     '''
@@ -76,6 +77,14 @@ def create_datasets(file_path , word2idx , tag2idx , train=False):
                 sentence_words.append(word2idx[word['form']])
             dataset[0].append(sentence_words)
             dataset[1].append(sentence_tags)
+            if jugaad:
+                if random.random() < 0.6:
+                    rand_int = random.randint(0,len(sentence_words)-1)
+                    for i in range(rand_int):
+                        rand_int2 = random.randint(0,len(sentence_words)-1)
+                        sentence_words[rand_int2] = word2idx['<UNK>']
+            dataset[0].append(sentence_words)
+            dataset[1].append(sentence_tags)
         return collate_jugaad(dataset)
     else:
         raw_data= read_file (file_path)
@@ -93,6 +102,14 @@ def create_datasets(file_path , word2idx , tag2idx , train=False):
                 sentence_tags.append(tag2idx[new_tag])
             dataset[1].append(sentence_tags)
             dataset[0].append(sentence_words)
+            if jugaad:
+                if random.random() < 0.6:
+                    rand_int = random.randint(0,len(sentence_words)-1)
+                    for i in range(rand_int):
+                        rand_int2 = random.randint(0,len(sentence_words)-1)
+                        sentence_words[rand_int2] = word2idx['<UNK>']
+            dataset[0].append(sentence_words)
+            dataset[1].append(sentence_tags)
         return collate_jugaad(dataset)
     
 
@@ -125,13 +142,13 @@ def collate_jugaad(dataset):
     return [torch.tensor(sentences) , torch.tensor(tags)]
 
 
-def Get_Dataloader(file_path , word2idx , tag2idx , batch_size , train=False):
+def Get_Dataloader(file_path , word2idx , tag2idx , batch_size , train=False, jugaad = True):
     '''
     This function creates the dataloader from the file
     args : file_path , word2idx , tag2idx , batch_size
     returns : dataloader
     '''
-    dataset = create_datasets(file_path , word2idx , tag2idx , train)
+    dataset = create_datasets(file_path , word2idx , tag2idx , train , jugaad= jugaad)
     dataloader = dataset_loader(dataset , batch_size , word2idx)
     return dataloader
 
