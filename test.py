@@ -10,9 +10,9 @@ def append(list):
 
 if __name__ == '__main__':
     
-    list = [0]
-    print(list)
-    reassign(list)
-    print(list)
-    append(list)
-    print(list)
+    listi = [0]+[0]*5
+    print(listi)
+    reassign(listi)
+    print(listi)
+    append(listi)
+    print(listi)

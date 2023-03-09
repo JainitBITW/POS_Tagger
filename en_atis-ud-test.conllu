@@ -8323,9 +8323,9 @@
 8	philadelphia	Philadelphia	PROPN	_	Number=Sing	4	obl	_	_
 
 # sent_id = 0586.test
-# text = also give me a list of flights between oakland and boston
+# text = also sdf me a list of flights between oakland and boston
 1	also	also	ADV	_	Degree=Pos	2	advmod	_	_
-2	give	give	VERB	_	VerbForm=Inf	0	root	_	_
+2	sdf	sdf	VERB	_	VerbForm=Inf	0	root	_	_
 3	me	I	PRON	_	Case=Acc|Number=Sing|Person=1|PronType=Prs	2	iobj	_	_
 4	a	a	DET	_	PronType=Art	5	det	_	_
 5	list	list	NOUN	_	Number=Sing	2	obj	_	_
