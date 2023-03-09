@@ -1,10 +1,13 @@
+#author : Jainit Bafna 
+#date : 9/3/2023
+#description : This file contains the code to create the dataset for the model
+
+
 #importing required libraries 
 import torch 
-import torch.nn as nn 
-import torch.nn.functional as F
-from torch import optim 
+
 from conllu import parse
-import numpy as np
+
 from torch.utils.data import Dataset, DataLoader
 
 
@@ -132,4 +135,6 @@ def Get_Dataloader(file_path , word2idx , tag2idx , batch_size , train=False):
     dataloader = dataset_loader(dataset , batch_size , word2idx)
     return dataloader
 
+if __name__ == '__main__':
+    print("This is the DataMaker.py file")
 
