@@ -7,8 +7,6 @@ from conllu import parse
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 
-
-
 class POS_Dataset(Dataset):
     '''
     This class creates the dataset for the model
@@ -36,9 +34,7 @@ class POS_Dataset(Dataset):
         '''
         return self.words[idx] , self.tags[idx]
     
-    
 
-        
 
 def get_device():
     '''
