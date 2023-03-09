@@ -1,2 +1,0 @@
-Enter the embedding dimension : Enter the hidden dimension : Enter the learning rate : 
-Do you want to train the model with jugaad ? (y/n) : Enter the number of epochs : 
