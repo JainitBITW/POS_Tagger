@@ -72,6 +72,7 @@ def create_datasets(file_path , word2idx , tag2idx , train=False , jugaad=True):
                 if word['form'] not in word2idx:
                     word2idx.update({word['form']:len(word2idx)})
                 if word['upostag'] not in tag2idx:
+                    # print(word['upostag'])
                     tag2idx.update({word['upostag']:len(tag2idx)})
                 sentence_tags.append(tag2idx[word['upostag']])
                 sentence_words.append(word2idx[word['form']])
@@ -98,7 +99,7 @@ def create_datasets(file_path , word2idx , tag2idx , train=False , jugaad=True):
                     new_word = '<UNK>'
                 sentence_words.append(word2idx[new_word])
                 if new_tag not in tag2idx:
-                    tag2idx.update({new_tag:len(tag2idx)})
+                    new_tag = '<UNK>'
                 sentence_tags.append(tag2idx[new_tag])
             dataset[1].append(sentence_tags)
             dataset[0].append(sentence_words)

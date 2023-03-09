@@ -3,7 +3,7 @@
 #description : This file contains the code to train a model 
 
 #importing the necessary libraries
-
+from sklearn.metrics import classification_report
 import torch 
 import torch.nn as nn 
 import torch.nn.functional as F
@@ -66,6 +66,7 @@ def train_model(model , train_loader , dev_loader, optimizer , criterion , epoch
     running_loss = 0
     print_every = 100
     best_accuracy = 0
+    print('Printing only when accuracy increases')
     for epoch in range(epochs):
         for words , tags in train_loader:
             steps += 1
@@ -99,9 +100,9 @@ def train_model(model , train_loader , dev_loader, optimizer , criterion , epoch
                             'embedding_dim' : model.embedding_dim,
     
                     }, path)
-                print(f"Epoch {epoch+1}/{epochs}.. "
-                        f"Train loss: {running_loss/print_every:.3f}.. "
-                        f"Test accuracy: {accuracy/len(dev_loader):.3f}")
+                    print(f"Epoch {epoch+1}/{epochs}.. "
+                            f"Train loss: {running_loss/print_every:.3f}.. "
+                            f"Test accuracy: {accuracy/len(dev_loader):.3f}")
                 running_loss = 0
                 model.train()
             
@@ -123,8 +124,34 @@ def test_model(model , test_loader , device):
             tags = tags.to(device)
             output = model(words)
             top_p , top_class = output.topk(1 , dim=1)
+            # print(top_class.shape)
             equals = top_class == tags.view(*top_class.shape)
             accuracy += torch.mean(equals.type(torch.FloatTensor))
     print(f"Test accuracy : {accuracy/len(test_loader)}")
     return accuracy/len(test_loader)
+
+def get_classification(model , test_loader , device , word2idx , tag2idx):
+    '''
+    This function returns the classification report of the model
+    args : model , test_loader , device , word2idx , tag2idx
+    returns : classification report
+    '''
+    model = model.to(device)
+    model.eval()
+    y_true = []
+    y_pred = []
+    with torch.no_grad():
+        for words , tags in test_loader:
+            words = words.to(device)
+            tags = tags.to(device)
+            output = model(words)
+            top_p , top_class = output.topk(1 , dim=1)
+            y_true.extend(tags.view(-1).cpu().numpy())
+            y_pred.extend(top_class.view(-1).cpu().numpy())
+    tagss= set(y_true)
+    idx2tag = {v:k for k,v in tag2idx.items()}
+    target_names = [idx2tag[i] for i in tagss]
+    print(classification_report(y_true , y_pred , target_names=target_names))
+    return classification_report(y_true , y_pred)
+
 
