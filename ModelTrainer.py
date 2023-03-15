@@ -60,6 +60,7 @@ def train_model(model , train_loader , dev_loader, optimizer , criterion , epoch
     returns : trained model
     '''
     model.train()
+    model = model.to(device)
     print(model.hidden_dim)
     print(model.embedding_dim)
     steps = 0
