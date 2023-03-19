@@ -23,3 +23,4 @@ This will also ask for various hyperparameters. You can play with them.
 ```bash
 python3 pos_tagger.py
 ```
+after running this command, there will be a prompt which will ask for sentence for which you want POS tags. 
